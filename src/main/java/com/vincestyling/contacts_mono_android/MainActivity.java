@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +15,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
     private List<Character> alphaList = new ArrayList<Character>();
     private List<Contact> contactList = new ArrayList<Contact>();
 
-    private ViewGroup alphaContentPager;
-    private ViewPager mainContentPager;
+    private ViewPager alphaContentPager, mainContentPager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,22 +23,22 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
         setContentView(R.layout.main);
         generateDummyData();
 
-        alphaContentPager = (ViewGroup) findViewById(R.id.alphaContentPager);
-//        alphaContentPager.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
-//            @Override
-//            public Fragment getItem(int position) {
-//                Fragment frag = new SimpleFragment();
-//                Bundle bundle = new Bundle();
-//                bundle.putString(SimpleFragment.DATA, alphaList.get(position).toString());
-//                frag.setArguments(bundle);
-//                return frag;
-//            }
-//
-//            @Override
-//            public int getCount() {
-//                return alphaList.size();
-//            }
-//        });
+        alphaContentPager = (ViewPager) findViewById(R.id.alphaContentPager);
+        alphaContentPager.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                Fragment frag = new SimpleFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(SimpleFragment.DATA, alphaList.get(position).toString());
+                frag.setArguments(bundle);
+                return frag;
+            }
+
+            @Override
+            public int getCount() {
+                return alphaList.size();
+            }
+        });
 
         mainContentPager = (ViewPager) findViewById(R.id.mainContentPager);
         mainContentPager.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
@@ -58,7 +56,6 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
                 return contactList.size();
             }
         });
-
         mainContentPager.setOnPageChangeListener(this);
 
         findViewById(R.id.btnPreviousPage).setOnClickListener(new View.OnClickListener() {
@@ -80,26 +77,49 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        float left = (position + positionOffset) * alphaContentPager.getWidth();
-//        View view = alphaContentPager.getChildAt(0);
-//        view.setLeft((int) -left);
-////        view.setTranslationX(-left);
-//
-//        View view1 = alphaContentPager.getChildAt(1);
-////        view1.setTranslationX(left);
-//        view1.setLeft((int) left);
-//        alphaContentPager.requestLayout();
-        alphaContentPager.scrollTo((int) left, 0);
+//        Log.e("", String.format("pos : %d, Offset : %f, Pixels : %d", position, positionOffset, positionOffsetPixels));
+        int comingPos = position;
+        boolean isForward = true;
+        if (position < selectedPos) {
+            isForward = false;
+        } else if (positionOffset != 0f) {
+            comingPos++;
+        }
 
-        Log.e("", String.format("pos : %d, Offset : %f, Pixels : %d, left : %f", position, positionOffset, positionOffsetPixels, left));
+        int alphaCurrPos = alphaContentPager.getCurrentItem();
+        char currChar = alphaList.get(alphaCurrPos);
+        if (comingPos < contactList.size() && currChar != contactList.get(comingPos).alpha) {
+            if (isForward) {
+                if (positionOffset == 0f) alphaCurrPos++;
+            } else alphaCurrPos--;
+            float left = (alphaCurrPos + positionOffset) * alphaContentPager.getWidth();
+            Log.e("", String.format("pos : %d, offset : %f", alphaCurrPos, positionOffset));
+            alphaContentPager.scrollTo((int) left, 0);
+        }
+
+        // settling the position at the end.
+        if (positionOffset == 0f) {
+            int index = alphaList.indexOf(contactList.get(position).alpha);
+            float left = index * alphaContentPager.getWidth();
+            alphaContentPager.scrollTo((int) left, 0);
+        }
+    }
+
+    private int selectedPos;
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+        if (state == ViewPager.SCROLL_STATE_IDLE) {
+            selectedPos = mainContentPager.getCurrentItem();
+            Contact contact = contactList.get(selectedPos);
+            int index = alphaList.indexOf(contact.alpha);
+            alphaContentPager.setCurrentItem(index, false);
+            Log.e("", String.format("alphaContentPager selected : %d", index));
+        }
     }
 
     @Override
     public void onPageSelected(int position) {
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
     }
 
     private class Contact {

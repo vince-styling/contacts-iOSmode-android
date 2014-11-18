@@ -6,41 +6,11 @@
     android:layout_height="match_parent"
     android:padding="20dp">
 
-    <LinearLayout
+    <com.vincestyling.contacts_mono_android.NonSwipeableViewPager
         android:id="@+id/alphaContentPager"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:orientation="horizontal"
-        android:layout_marginBottom="6dp">
-
-        <TextView
-            android:id="@+id/txvText1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="18sp"
-            android:textColor="@android:color/white"
-            android:background="#ff4444"/>
-
-        <TextView
-            android:id="@+id/txvText2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="18sp"
-            android:textColor="@android:color/white"
-            android:background="#ffbb33"/>
-
-        <TextView
-            android:id="@+id/txvText3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="18sp"
-            android:textColor="@android:color/white"
-            android:background="#bebebe"/>
-
-    </LinearLayout>
+        android:layout_marginBottom="6dp"
+        android:layout_height="45dp"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/mainContentPager"
